@@ -16,23 +16,33 @@ This wrapper is far from complete, and I'm only planning on supporting what I ne
 EVENTS
 ======
 
-Here's how I'm doing events.  When you call fltk.Wait() or fltk.Wait(), the toolkit will process at most one event and then call the event handler with an Event structure on the widget that received the event.  Normally, the event handler processes the event after the widget processes it, but you can "steal" events so that your event handler will get the event before the widget has a chance to process it.  If you want the widget to process a stolen event, just call widget.ContinueEvent().  Here are the two cases:
+When you call fltk.Wait() or fltk.Wait(), the toolkit will process at most one event and then call the event handler with an Event structure on the widget that received the event.  By default, widgets have empty handlers.  You can choose to handle an event in one of four ways:
 
-case 1, processing an event after the widget handles it (default case):
+	case 1, processing an event after the widget handles it (default case):
 
-     user event --> widget --> go event handler
+		user event --> widget --> go event handler
 
-case 2, processing an event before the widget handles it (event stealing):
+	case 2, processing an event before the widget handles it (event stealing):
 
-     user event --> go event handler [optionally: --> widget]
+		user event --> go event handler [optionally: --> widget]
+
+	case 3, roll your own, with default widget behavior (don't install an event handler):
+
+		user event --> widget --> roll your own with the current event
+
+	case 4, roll your own, with no default widget behavior (don't install an event handler):
+
+		user event --> roll your own with the current event (optionally continuing the event)
+
+Normally, the widget processes the event before Wait returns but you can "steal" events so that your event handler will get the event before the widget has a chance to process it.  If you want the widget to process a stolen event, just call widget.ContinueEvent().
 
 You install an event handler with widget.SetEventHandler() like this:
 
-input.SetEventHandler(func(e fltk.Event){println(e.Event)}
+    input.SetEventHandler(func(e fltk.Event){println(e.Event)}
 
 if you want to steal events, call widget.StealEvents() with a bit mask for the FLTK event types.  There are constants for the event types and masks for them by appending _MASK to the name, like PUSH_MASK, which is just 1 << PUSH.  You call StealEvents() like this:
 
-input.StealEvents((1 << PUSH_MASK) | (1 << DRAG_MASK))
+   input.StealEvents((1 << PUSH_MASK) | (1 << DRAG_MASK))
 
 There is a bool field in Event, called "Stolen" to tell you whether the event was stolen.  Here is an example of an event handler that prints a message for stolen push and drag events and then continues them:
 

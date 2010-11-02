@@ -9,11 +9,11 @@ import "unsafe"
 type Widget struct {
 	Rectangle
 	callback func()
-	eventHandler func(Event)
+	eventHandler func(*Event)
 }
 
 func emptyCallback() {}
-func emptyHandler(Event) {}
+func emptyHandler(*Event) {}
 
 func (w *Widget) Init(p unsafe.Pointer) {
 	w.Rectangle = Rectangle{(*C.Rectangle)(p)}
@@ -34,6 +34,6 @@ func (w *Widget) SetCallback(f func()) {
 	w.callback = f
 	C.fltk_Widget_callback(w.ptr)
 }
-func (w *Widget) SetEventHandler(f func(Event)) {w.eventHandler = f}
+func (w *Widget) SetEventHandler(f func(*Event)) {w.eventHandler = f}
 func (w *Widget) HandleCallback() {w.callback()}
-func (w *Widget) HandleEvent(e Event) {w.eventHandler(e)}
+func (w *Widget) HandleEvent(e *Event) {w.eventHandler(e)}

@@ -79,6 +79,7 @@ type Event struct {
 	XRoot int
 	YRoot int
 	Stolen bool
+	TimeElapsed int
 }
 
 var widgets map[*C.Widget]*Widget
@@ -92,7 +93,7 @@ func init() {
 func Run() {
 	C.fltk_run()
 }
-func Wait(time... float64) int {
+func Wait(time... float64) *Event {
 	i := 0
 
 	if len(time) == 0 {
@@ -104,7 +105,7 @@ func Wait(time... float64) int {
 		widgets[C.fltk_callback_widget].HandleCallback()
 	}
 	if C.fltk_event_widget != (*C.Widget)(unsafe.Pointer(uintptr(0))) {
-		widgets[C.fltk_event_widget].HandleEvent(Event{
+		evt := &Event{
 			widgets[C.fltk_event_widget],
 			int(C.fltk_event),
 			int(C.fltk_event_state),
@@ -118,7 +119,10 @@ func Wait(time... float64) int {
 			int(C.fltk_event_x_root),
 			int(C.fltk_event_y_root),
 			int(C.fltk_event_stolen) != 0,
-		})
+			i,
+		}
+		widgets[C.fltk_event_widget].HandleEvent(evt)
+		return evt
 	}
-	return i
+	return nil
 }
