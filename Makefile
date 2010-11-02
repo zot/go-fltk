@@ -3,7 +3,7 @@ FLTK_DIST=/tmp/$(FLTK).tar.bz2
 FLTK_URL=http://ftp.funet.fi/pub/mirrors/ftp.easysw.com/pub/fltk/snapshots/$(FLTK).tar.bz2
 FLTK_LIB=$(FLTK)/lib/libfltk2.a
 
-examples: package
+examples: install
 	(cd examples; make)
 
 # uncomment the next line to have 'make clean' remove the fltk-dist
@@ -19,15 +19,14 @@ CGOFILES=\
 	group.go \
 	input.go \
 	window.go
+CGO_DEPS=fltk.o
 
 CGO_LDFLAGS=fltk.o $(FLTK_LIB) -lXext -lXinerama -lXft -lX11 -lXi -lm
 
 include $(GOROOT)/src/Make.pkg
 
-fltk.o: fltk.cxx $(FLTK_LIB)
+fltk.o: fltk.h fltk.cxx $(FLTK_LIB)
 	g++ -I$(FLTK) -c fltk.cxx
-
-_go_.8: fltk.o
 
 $(CGOTARG).so: $(GCC_OFILES) $(CGO_DEPS)
 	g++ $(_CGO_CFLAGS_$(GOARCH)) -o $@ $(GCC_OFILES) $(CGO_LDFLAGS)  $(_CGO_LDFLAGS_$(GOOS))

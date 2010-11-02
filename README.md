@@ -3,6 +3,10 @@
 
 This is a simple go wrapper for [FLTK2](http://www.fltk.org/doc-2.0/html/index.html), which I did to support my Go version of Ober (based on Acme), [Gober](http://github.com/zot/Gober).  It's very small and should be fairly easy to extend to support whatever other widgets and functionality you need.  Please contribute changes you make.  The code is licensed under the very permissive ZLIB license.  FLTK2 is only somewhat supported, but I like its mouse-text behavior better than FLTK 1.3's.
 
+GOALS
+=====
+Small and relatively stand-alone -- I wanted a toolkit that only depended on basic X functionality and was relatively small so I could statially link it into the Go package.  At this point, fltk.a is 121K and cgo_fltk.so is 312K.  Yes, I'm sitting here with a straight face and claiming that this is "small."  Widget kits are usually several megabytes, so this is small.  Maybe someday this will even be a service instead of a library.
+
 
 LIMITED FUNCTIONALITY
 =====================
@@ -40,7 +44,7 @@ There is a bool field in Event, called "Stolen" to tell you whether the event wa
 		}
 	})
 
-There is an example program in the "examples" directory, called text.go that shows a text field and steals events like this.
+There is an example program, test.go, in the "examples" directory, that shows a text field and steals events like this.
 
 
 DEPENDENCIES
@@ -56,9 +60,7 @@ To build, run "make" in the top-level directory.  This assumes you have g++ inst
 
 To install the library, run "make install".
 
-The example depends on the library being installed, so before building the example, you have to do make install.  To build the example, run "make examples".
-
-If you change things in the library, sometimes it helps to run "make clean", because the dependencies for cgo_fltk.so don't always seem to work.
+To build the examples, run "make examples".
 
 If you want to eliminate the fltk-library from your directory, you can run "make clean-fltk".
 
