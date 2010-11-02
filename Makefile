@@ -32,10 +32,10 @@ $(CGOTARG).so: $(GCC_OFILES) $(CGO_DEPS)
 	g++ $(_CGO_CFLAGS_$(GOARCH)) -o $@ $(GCC_OFILES) $(CGO_LDFLAGS)  $(_CGO_LDFLAGS_$(GOOS))
 
 $(FLTK_LIB): $(FLTK)/config.status
-	(cd $(FLTK); make)
+	(cd $(FLTK); make DIRS="src $(LOCALIMAGES) images")
 
 $(FLTK)/config.status: $(FLTK)/stamp
-	(cd $(FLTK); ./configure)
+	(cd $(FLTK); ./configure --disable-gl --disable-shared)
 
 $(FLTK)/stamp: $(FLTK_DIST)
 	tar xjf $(FLTK_DIST)

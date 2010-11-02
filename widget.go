@@ -15,16 +15,15 @@ type Widget struct {
 func emptyCallback() {}
 func emptyHandler(*Event) {}
 
-func (w *Widget) Init(p unsafe.Pointer) {
+func NewWidget(x, y, w, h int, text string) *Widget {
+	return (&Widget{}).Init(unsafe.Pointer(C.fltk_new_Widget(C.int(x), C.int(y), C.int(w), C.int(h), C.CString(text))))
+}
+func (w *Widget) Init(p unsafe.Pointer) *Widget {
 	w.Rectangle = Rectangle{(*C.Rectangle)(p)}
 	w.callback = emptyCallback
 	w.eventHandler = emptyHandler
 	widgets[w.ptr] = w
-}
-func NewWidget(x, y, w, h int, text string) *Widget {
-	wid := &Widget{}
-	wid.Init(unsafe.Pointer(C.fltk_new_Widget(C.int(x), C.int(y), C.int(w), C.int(h), C.CString(text))))
-	return wid
+	return w
 }
 func (w *Widget) Box(box *C.Box) {C.fltk_Widget_box(w.ptr, box)}
 func (w *Widget) LabelFont(font *C.Font) {C.fltk_Widget_labelfont(w.ptr, font)}

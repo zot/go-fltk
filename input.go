@@ -19,7 +19,7 @@ func NewInput(x, y, w, h int, text... string) *Input {
 		s = C.CString(text[0])
 	}
 	i := &Input{}
-	i.Widget.Init(unsafe.Pointer(C.fltk_new_Input(C.int(x), C.int(y), C.int(w), C.int(h), s)))
+	i.Init(unsafe.Pointer(C.fltk_new_Input(C.int(x), C.int(y), C.int(w), C.int(h), s)))
 	return i
 }
 func (i *Input) StealEvents(etypes int) {C.fltk_Input_steal_events(i.ptr, C.int(etypes))}

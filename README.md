@@ -7,6 +7,7 @@ This is a simple go wrapper for [FLTK2](http://www.fltk.org/doc-2.0/html/index.h
 GOALS
 =====
 * Small and relatively stand-alone -- I wanted a toolkit that only depended on basic X functionality and was relatively small so I could statially link it into the Go package.  At this point, fltk.a is 121K and cgo_fltk.so is 312K.  Yes, I'm sitting here with a straight face and claiming that this is "small."  Widget kits are usually several megabytes, so this is small.  Maybe someday this will even be a service instead of a library.
+* Simplicity -- I'm trying to keep the code small, mostly in Go, generic (multipurpose, but not fat), easy to modify, and easy to extend
 * Good integration with Go -- the way FLTK processes events lends itself well to Go programs (I think).
 
 
