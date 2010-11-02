@@ -6,7 +6,8 @@ This is a simple go wrapper for [FLTK2](http://www.fltk.org/doc-2.0/html/index.h
 
 GOALS
 =====
-Small and relatively stand-alone -- I wanted a toolkit that only depended on basic X functionality and was relatively small so I could statially link it into the Go package.  At this point, fltk.a is 121K and cgo_fltk.so is 312K.  Yes, I'm sitting here with a straight face and claiming that this is "small."  Widget kits are usually several megabytes, so this is small.  Maybe someday this will even be a service instead of a library.
+* Small and relatively stand-alone -- I wanted a toolkit that only depended on basic X functionality and was relatively small so I could statially link it into the Go package.  At this point, fltk.a is 121K and cgo_fltk.so is 312K.  Yes, I'm sitting here with a straight face and claiming that this is "small."  Widget kits are usually several megabytes, so this is small.  Maybe someday this will even be a service instead of a library.
+* Good integration with Go -- the way FLTK processes events lends itself well to Go programs (I think).
 
 
 LIMITED FUNCTIONALITY
@@ -34,17 +35,15 @@ When you call fltk.Wait() or fltk.Wait(), the toolkit will process at most one e
 
 		user event --> roll your own with the current event [optionally: --> widget]
 
-Normally, the widget processes the event before Wait returns but you can "steal" events so that your event handler will get the event before the widget has a chance to process it.  If you want the widget to process a stolen event, just call widget.ContinueEvent().
-
 You can install an event handler with widget.SetEventHandler() like this:
 
     input.SetEventHandler(func(e fltk.Event){println(e.Event)}
 
-if you want to steal events, call widget.StealEvents() with a bit mask for the FLTK event types.  There are constants for the event types and masks for them by appending _MASK to the name, like PUSH_MASK, which is just 1 << PUSH.  You call StealEvents() like this:
+Normally, the widget processes the event before Wait returns but you can "steal" events so that your event handler will get the event before the widget has a chance to process it.  If you want to steal events, call widget.StealEvents() with a bit mask for the FLTK event types.  There are constants for the event types and masks for them by appending _MASK to the name, like PUSH_MASK, which is just 1 << PUSH.  You call StealEvents() like this:
 
    input.StealEvents((1 << PUSH_MASK) | (1 << DRAG_MASK))
 
-There is a bool field in Event, called "Stolen" to tell you whether the event was stolen.  Here is an example of an event handler that prints a message for stolen push and drag events and then continues them:
+There is a bool field in Event, called "Stolen" to tell you whether the event was stolen.  If you want the widget to process the stolen event, just call widget.ContinueEvent().  Here is an example of an event handler that prints a message for stolen push and drag events and then continues them:
 
 	i.StealEvents(fltk.PUSH_MASK | fltk.DRAG_MASK)
 	i.SetEventHandler(func(e fltk.Event) {
@@ -54,7 +53,7 @@ There is a bool field in Event, called "Stolen" to tell you whether the event wa
 		}
 	})
 
-There is an example program, test.go, in the "examples" directory, that shows a text field and steals events like this.
+There is an example program, test.go, in the "examples" directory, that steals events from a text field, like this.
 
 
 DEPENDENCIES
@@ -77,4 +76,4 @@ If you want to eliminate the fltk-library from your directory, you can run "make
 
 EXAMPLES
 ========
-There are two examples: hello and text.  Hello is the Hello World program from the [FLTK docs](http://www.fltk.org/doc-2.0/html/index.html) and text is a window with a text field in it that steals the PUSH and DRAG events, printing a message and continuing the events.
+There are two examples: hello and text.  Hello is the Hello World program from the [FLTK docs](http://www.fltk.org/doc-2.0/html/example1.html) and text is a window with a text field in it that steals the PUSH and DRAG events, printing a message and continuing the events.
