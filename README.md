@@ -3,6 +3,7 @@
 
 This is a simple go wrapper for [FLTK2](http://www.fltk.org/doc-2.0/html/index.html), which I did to support my Go version of Ober (based on Acme), [Gober](http://github.com/zot/Gober).  It's very small and should be fairly easy to extend to support whatever other widgets and functionality you need.  Please contribute changes you make.  The code is licensed under the very permissive ZLIB license.  FLTK2 is only somewhat supported, but I like its mouse-text behavior better than FLTK 1.3's.
 
+
 GOALS
 =====
 Small and relatively stand-alone -- I wanted a toolkit that only depended on basic X functionality and was relatively small so I could statially link it into the Go package.  At this point, fltk.a is 121K and cgo_fltk.so is 312K.  Yes, I'm sitting here with a straight face and claiming that this is "small."  Widget kits are usually several megabytes, so this is small.  Maybe someday this will even be a service instead of a library.
@@ -15,28 +16,27 @@ This wrapper is far from complete, and I'm only planning on supporting what I ne
 
 EVENTS
 ======
+When you call fltk.Wait() or fltk.Wait(), the toolkit will process at most one event, call the event handler on the widget that received the event, passing in an Event structure, and then return the event.  By default, widgets have empty handlers, so you can treat fltk as an event stream if you like, instead of using event handlers (wait for an event, process the event yourself), which may lend itself well to using Go channels.  That boils down to four ways you can deal with events:
 
-When you call fltk.Wait() or fltk.Wait(), the toolkit will process at most one event and then call the event handler with an Event structure on the widget that received the event.  By default, widgets have empty handlers.  You can choose to handle an event in one of four ways:
-
-	case 1, processing an event after the widget handles it (default case):
+	case 1, process an event after the widget handles it:
 
 		user event --> widget --> go event handler
 
-	case 2, processing an event before the widget handles it (event stealing):
+	case 2, process an event before the widget handles it (event stealing):
 
 		user event --> go event handler [optionally: --> widget]
 
-	case 3, roll your own, with default widget behavior (don't install an event handler):
+	case 3, roll your own, with default widget behavior (without an event handler):
 
 		user event --> widget --> roll your own with the current event
 
-	case 4, roll your own, with no default widget behavior (don't install an event handler):
+	case 4, roll your own, with no default widget behavior (stealing without an event handler):
 
-		user event --> roll your own with the current event (optionally continuing the event)
+		user event --> roll your own with the current event [optionally: --> widget]
 
 Normally, the widget processes the event before Wait returns but you can "steal" events so that your event handler will get the event before the widget has a chance to process it.  If you want the widget to process a stolen event, just call widget.ContinueEvent().
 
-You install an event handler with widget.SetEventHandler() like this:
+You can install an event handler with widget.SetEventHandler() like this:
 
     input.SetEventHandler(func(e fltk.Event){println(e.Event)}
 
