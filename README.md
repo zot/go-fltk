@@ -1,9 +1,13 @@
-Go FLTK
-=======
+[Go FLTK](http://github.com/zot/go-fltk)
+========================================
 
-This is a simple go wrapper for [FLTK2](http://www.fltk.org/doc-2.0/html/index.html), which I did to support my Go version of Ober (based on Acme).  It's very small and should be fairly easy to extend to support whatever other widgets and functionality you need.  Please contribute changes you make.  The code is licensed under the very permissive ZLIB license.  FLTK2 is only somewhat supported, but I like its mouse-text behavior better than FLTK 1.3's.
+This is a simple go wrapper for [FLTK2](http://www.fltk.org/doc-2.0/html/index.html), which I did to support my Go version of Ober (based on Acme), [Gober](http://github.com/zot/Gober).  It's very small and should be fairly easy to extend to support whatever other widgets and functionality you need.  Please contribute changes you make.  The code is licensed under the very permissive ZLIB license.  FLTK2 is only somewhat supported, but I like its mouse-text behavior better than FLTK 1.3's.
 
-This wrapper is far from complete, and I'm only planning on supporting what I need to do Ober, but I welcome additions to it.
+
+LIMITED FUNCTIONALITY
+=====================
+This wrapper is far from complete, and I'm only planning on supporting what I need to do Gober, but I welcome additions to it.  In fact, at this point it hardly does anything.  I'll flesh things out as I need them for Gober.
+
 
 EVENTS
 ======
