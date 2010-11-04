@@ -9,7 +9,7 @@ func main() {
 
 	window := fltk.NewWindow(300, 180)
 	l := fltk.NewLayoutCalc(window)
-	window.SetCallback(func(){exit = true; println("CLOSED")})
+	window.SetCallback(func(){exit = true; println("CLOSED"); window.Destroy()})
 	window.Begin()
 	i := fltk.NewInput(l.X, l.Y, l.W, 30)
 	l.Add(i)

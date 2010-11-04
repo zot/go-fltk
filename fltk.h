@@ -51,6 +51,7 @@ extern void go_fltk_Widget_labelfont(Widget *w, Font *font);
 extern void go_fltk_Widget_labelsize(Widget *w, int size);
 extern void go_fltk_Widget_labeltype(Widget *w, LabelType *type);
 extern void go_fltk_Widget_callback(Widget *w);
+extern void go_fltk_Window_destroy(Window *w);
 extern void go_fltk_Window_show(Window *w, int argc, void *argv);
 extern int go_fltk_Widget_x(Widget *w);
 extern int go_fltk_Widget_y(Widget *w);

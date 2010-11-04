@@ -43,12 +43,11 @@ void set_event_fields() {
 static void respond();
 
 static void lock() {
-  printf("LOCK\n");
   fltk::lock();
 }
 
 static void unlock() {
-  printf("UNLOCK\n");
+  fltk::awake();
   fltk::unlock();
 }
 
@@ -63,9 +62,13 @@ public:
       go_fltk_event_stolen = 1;
       go_fltk_event_widget = dynamic_cast<Widget *>(this);
       respond();
+      if (go_fltk_event_stolen == 0) {
+	int i = continue_event();
+      }
+      return 1;
     }
     int i = continue_event();
-    if (!stolen) respond();
+    respond();
     return i;
   }
 };
@@ -93,33 +96,35 @@ public:
 
 static void notify_callback(Widget *w, void *data) {
   go_fltk_callback_widget = w;
+  respond();
 }
 
-#define LOCK(code) {fltk::lock(); printf("LOCKED\n"); code; fltk::awake(); fltk::unlock(); printf("UNLOCKED\n");}
+#define LOCK(code) fltk::lock(); printf("API LOCKED\n"); code; fltk::awake(); fltk::unlock(); printf("API UNLOCKED\n");
 
-Box *go_fltk_get_UP_BOX() LOCK({return fltk::UP_BOX;})
-Font *go_fltk_get_HELVETICA_BOLD_ITALIC() LOCK({return  fltk::HELVETICA_BOLD_ITALIC;})
-LabelType *go_fltk_get_SHADOW_LABEL() LOCK({return fltk::SHADOW_LABEL;})
-void go_fltk_run() LOCK({fltk::run();})
-Window *go_fltk_new_Window(int w, int h) LOCK({return new Window(w, h);})
-Widget *go_fltk_new_Widget(int x, int y, int w, int h, const char *text) LOCK({return new GWidget(x, y, w, h, text);})
-Input *go_fltk_new_Input(int x, int y, int w, int h, const char *text) LOCK({return new GInput(x, y, w, h, text);})
-TextEditor *go_fltk_new_TextEditor(int x, int y, int w, int h, const char *text) LOCK({return new GTextEditor(x, y, w, h, text);})
-void go_fltk_Widget_steal_events(Widget *w, int events) LOCK({dynamic_cast<EventStealer*>(w)->stealEvents = events;})
-void go_fltk_Widget_continue_event(Widget *w) LOCK({dynamic_cast<EventStealer*>(w)->continue_event();})
-void go_fltk_Group_begin(Group *g) LOCK({g->begin();})
-void go_fltk_Group_end(Group *g) LOCK({g->end();})
-void go_fltk_Group_resizable(Group *g, Widget *w) LOCK({g->resizable(w);})
-void go_fltk_Window_show(Window *w, int argc, void *argv) LOCK({w->show(argc, (char **)argv);})
-void go_fltk_Widget_box(Widget *w, Box *box) LOCK({w->box(box);})
-void go_fltk_Widget_callback(Widget *w) LOCK({w->callback(notify_callback);})
-void go_fltk_Widget_labelfont(Widget *w, Font *font) LOCK({w->labelfont(font);})
-void go_fltk_Widget_labelsize(Widget *w, int size) LOCK({w->labelsize(size);})
-void go_fltk_Widget_labeltype(Widget *w, LabelType *type) LOCK({w->labeltype(type);})
-int go_fltk_Widget_x(Widget *w) LOCK({return w->x();})
-int go_fltk_Widget_y(Widget *w) LOCK({return w->y();})
-int go_fltk_Widget_w(Widget *w) LOCK({return w->w();})
-int go_fltk_Widget_h(Widget *w) LOCK({return w->h();})
+Box *go_fltk_get_UP_BOX() {LOCK(Box *b = fltk::UP_BOX;) return b;}
+Font *go_fltk_get_HELVETICA_BOLD_ITALIC() {LOCK(Font *f = fltk::HELVETICA_BOLD_ITALIC;) return f;}
+LabelType *go_fltk_get_SHADOW_LABEL() {LOCK(LabelType *t = fltk::SHADOW_LABEL;) return t;}
+//void go_fltk_run() {LOCK(fltk::run();)}
+Window *go_fltk_new_Window(int w, int h) {LOCK(Window *win = new Window(w, h);) return win;}
+Widget *go_fltk_new_Widget(int x, int y, int w, int h, const char *text) {LOCK(Widget *wid = new GWidget(x, y, w, h, text);) return wid;}
+Input *go_fltk_new_Input(int x, int y, int w, int h, const char *text) {LOCK(Input *i = new GInput(x, y, w, h, text);) return i;}
+TextEditor *go_fltk_new_TextEditor(int x, int y, int w, int h, const char *text) {LOCK(TextEditor *te = new GTextEditor(x, y, w, h, text);) return te;}
+void go_fltk_Widget_steal_events(Widget *w, int events) {LOCK(dynamic_cast<EventStealer*>(w)->stealEvents = events;)}
+void go_fltk_Widget_continue_event(Widget *w) {LOCK(go_fltk_event_stolen = 0;)}
+void go_fltk_Group_begin(Group *g) {LOCK(g->begin();)}
+void go_fltk_Group_end(Group *g) {LOCK(g->end();)}
+void go_fltk_Group_resizable(Group *g, Widget *w) {LOCK(g->resizable(w);)}
+void go_fltk_Window_destroy(Window *w) {LOCK(w->destroy();)}
+void go_fltk_Window_show(Window *w, int argc, void *argv) {LOCK(w->show(argc, (char **)argv);)}
+void go_fltk_Widget_box(Widget *w, Box *box) {LOCK(w->box(box);)}
+void go_fltk_Widget_callback(Widget *w) {LOCK(w->callback(notify_callback);)}
+void go_fltk_Widget_labelfont(Widget *w, Font *font) {LOCK(w->labelfont(font);)}
+void go_fltk_Widget_labelsize(Widget *w, int size) {LOCK(w->labelsize(size);)}
+void go_fltk_Widget_labeltype(Widget *w, LabelType *type) {LOCK(w->labeltype(type);)}
+int go_fltk_Widget_x(Widget *w) {LOCK(int i = w->x();) return i;}
+int go_fltk_Widget_y(Widget *w) {LOCK(int i = w->y();) return i;}
+int go_fltk_Widget_w(Widget *w) {LOCK(int i = w->w();) return i;}
+int go_fltk_Widget_h(Widget *w) {LOCK(int i = w->h();) return i;}
 //*
 int go_fltk_wait_forever() {
   printf("TICK\n");
@@ -146,28 +151,45 @@ int go_fltk_wait(double time) {
 ////////////////
 
 static fltk::SignalMutex eventMutex, continueMutex;
+static bool eventFlag = false, continueFlag = false;
 static bool running = false;
 
 static void respond() {
   if (running) {
-    printf("RESPOND -- WAITING\n");
+    set_event_fields();
+    printf("FLTK SENDING EVENT TO GO, UNLOCKING\n");
     unlock();
+    eventFlag = true;
     eventMutex.signal();
-    continueMutex.wait();
+    printf("FLTK WAITING FOR CONTINUE FROM GO\n");
+    while (!continueFlag) {continueMutex.wait();}
+    continueFlag = false;
+    printf("FLTK GOT EVENT FROM GO, LOCKING\n");
     lock();
-    fltk::awake();
-  } else {
-    printf("RESPOND -- NOT WAITING\n");
+    printf("FLTK LOCKED\n");
   }
 }
 
-static void *startFltk(void *data) {
+//void *go_fltk_run(void *data) {
+void go_fltk_run() {
   lock();
-  fltk::awake();
   running = true;
-  fltk::run();
+  for (;;) {
+    printf("FLTK WAITING FOR EVENT\n");
+    fltk::wait();
+  }
 }
 
-void go_fltk_get_event() {eventMutex.wait();}
-void go_fltk_continue_event() {continueMutex.signal();}
-void go_fltk_init() {fltk::Thread t1; fltk::create_thread(t1, startFltk, 0);}
+void go_fltk_get_event() {
+  while (!eventFlag) {eventMutex.wait();}
+  eventFlag = false;
+}
+void go_fltk_continue_event() {
+  continueFlag = true;
+  lock();
+  go_fltk_event_widget = 0;
+  go_fltk_callback_widget = 0;
+  unlock();
+  continueMutex.signal();
+}
+//void go_fltk_init() {fltk::Thread t1; fltk::create_thread(t1, startFltk, 0);}
