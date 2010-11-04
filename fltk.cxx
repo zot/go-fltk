@@ -57,17 +57,20 @@ public:
   int stealEvents;
   virtual int continue_event() = 0;
   int handle(int event) {
-    bool stolen = (stealEvents & (1 << event)) != 0;
+    if (fltk::belowmouse() == dynamic_cast<Widget *>(this)) {
+      bool stolen = (stealEvents & (1 << event)) != 0;
 
-    if (stolen) {
-      go_fltk_event_stolen = 1;
-      go_fltk_event_widget = dynamic_cast<Widget *>(this);
+      printf("widget: %x belowmouse: %x, event:%d\n", dynamic_cast<Widget *>(this), fltk::belowmouse(), event);
+      if (stolen) {
+	go_fltk_event_stolen = 1;
+	respond();
+	return (go_fltk_event_stolen == 0 ? continue_event() : go_fltk_event_return);
+      }
+      go_fltk_event_return = continue_event();
       respond();
-      return (go_fltk_event_stolen == 0 ? continue_event() : go_fltk_event_return);
+      return go_fltk_event_return;
     }
-    go_fltk_event_return = continue_event();
-    respond();
-    return go_fltk_event_return;
+    return 1;
   }
 };
 

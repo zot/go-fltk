@@ -196,7 +196,7 @@ func Handle(event *Event) int {
 		event.Callback.getWidget().HandleCallback()
 	} else if event.Widget != nil {
 		event.Widget.getWidget().HandleEvent(event)
-		fmt.Println("Widget: ", event.Widget, ", returned: ", event.Return)
+		fmt.Println("-- widget:", event.Widget, "event:", event.Event, " returned: ", event.Return)
 	}
 	return event.Return
 }

@@ -13,8 +13,9 @@ func main() {
 	window.Begin()
 	i := fltk.NewInput(l.X, l.Y, l.W, 30)
 	l.Add(i)
-//*
+println(strconv.Itoa(3))
 	i.StealEvents(fltk.PUSH_MASK | fltk.DRAG_MASK)
+//*
 	i.SetEventHandler(func(e *fltk.Event) {
 		if (e.Stolen) {
 			fmt.Println("CONTINUING EVENT:", strconv.Itoa(e.Event), "widget:", e.Widget)
