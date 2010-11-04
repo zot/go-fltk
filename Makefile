@@ -12,12 +12,14 @@ examples: install
 include $(GOROOT)/src/Make.inc
 
 TARG=fltk
+GOFILES=\
+	layoutcalc.go
 CGOFILES=\
 	fltk.go \
-	rectangle.go \
 	widget.go \
 	group.go \
 	input.go \
+	texteditor.go \
 	window.go
 CGO_DEPS=fltk.o
 

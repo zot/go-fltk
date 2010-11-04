@@ -12,7 +12,7 @@ type Window struct {
 
 func NewWindow(w, h int) *Window {
 	win := &Window{}
-	win.Init(unsafe.Pointer(C.fltk_new_Window(C.int(w), C.int(h))))
+	initWidget(win, unsafe.Pointer(C.go_fltk_new_Window(C.int(w), C.int(h))))
 	return win
 }
-func (w *Window) Show(args []string) {C.fltk_Window_show(w.ptr, C.int(0), unsafe.Pointer(uintptr(0)))}
+func (w *Window) Show(args []string) {C.go_fltk_Window_show(w.ptr, C.int(0), unsafe.Pointer(uintptr(0)))}

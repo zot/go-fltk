@@ -5,9 +5,10 @@ package fltk
 */
 import "C"
 import "unsafe"
+import "fmt"
 
 type Widget struct {
-	Rectangle
+	ptr *C.Widget
 	callback func()
 	eventHandler func(*Event)
 }
@@ -15,24 +16,31 @@ type Widget struct {
 func emptyCallback() {}
 func emptyHandler(*Event) {}
 
-func NewWidget(x, y, w, h int, text string) *Widget {
-	return (&Widget{}).Init(unsafe.Pointer(C.fltk_new_Widget(C.int(x), C.int(y), C.int(w), C.int(h), C.CString(text))))
+func NewWidget(x, y, w, h int, text... string) *Widget {
+	return initWidget(&Widget{}, unsafe.Pointer(C.go_fltk_new_Widget(C.int(x), C.int(y), C.int(w), C.int(h), cStringOpt(text))))
 }
-func (w *Widget) Init(p unsafe.Pointer) *Widget {
-	w.Rectangle = Rectangle{(*C.Rectangle)(p)}
-	w.callback = emptyCallback
-	w.eventHandler = emptyHandler
-	widgets[w.ptr] = w
-	return w
-}
-func (w *Widget) Box(box *C.Box) {C.fltk_Widget_box(w.ptr, box)}
-func (w *Widget) LabelFont(font *C.Font) {C.fltk_Widget_labelfont(w.ptr, font)}
-func (w *Widget) LabelSize(size int) {C.fltk_Widget_labelsize(w.ptr, C.int(size))}
-func (w *Widget) LabelType(ltype *C.LabelType) {C.fltk_Widget_labeltype(w.ptr, ltype)}
+func (w *Widget) String() string {return fmt.Sprintf("Widget: %q", unsafe.Pointer(w.ptr))}
 func (w *Widget) SetCallback(f func()) {
 	w.callback = f
-	C.fltk_Widget_callback(w.ptr)
+	C.go_fltk_Widget_callback(w.ptr)
 }
+func (w *Widget) ContinueEvent() bool {
+	if C.go_fltk_event_stolen != 0 {
+		C.go_fltk_Widget_continue_event(w.ptr)
+		return true
+	}
+	return false
+}
+func (w *Widget) getWidget() *Widget {return w}
+func (w *Widget) StealEvents(etypes int) {C.go_fltk_Widget_steal_events(w.ptr, C.int(etypes))}
+func (w *Widget) Box(box *C.Box) {C.go_fltk_Widget_box(w.ptr, box)}
+func (w *Widget) LabelFont(font *C.Font) {C.go_fltk_Widget_labelfont(w.ptr, font)}
+func (w *Widget) LabelSize(size int) {C.go_fltk_Widget_labelsize(w.ptr, C.int(size))}
+func (w *Widget) LabelType(ltype *C.LabelType) {C.go_fltk_Widget_labeltype(w.ptr, ltype)}
 func (w *Widget) SetEventHandler(f func(*Event)) {w.eventHandler = f}
 func (w *Widget) HandleCallback() {w.callback()}
 func (w *Widget) HandleEvent(e *Event) {w.eventHandler(e)}
+func (w *Widget) X() int {return int(C.go_fltk_Widget_x(w.ptr))}
+func (w *Widget) Y() int {return int(C.go_fltk_Widget_y(w.ptr))}
+func (w *Widget) W() int {return int(C.go_fltk_Widget_w(w.ptr))}
+func (w *Widget) H() int {return int(C.go_fltk_Widget_h(w.ptr))}

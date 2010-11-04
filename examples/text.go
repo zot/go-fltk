@@ -1,26 +1,34 @@
 package main
 
 import "fltk"
-//import "fmt"
+import "fmt"
 import "strconv"
 
 func main() {
 	exit := false
 
 	window := fltk.NewWindow(300, 180)
+	l := fltk.NewLayoutCalc(window)
 	window.SetCallback(func(){exit = true; println("CLOSED")})
 	window.Begin()
-	i := fltk.NewInput(0, 0, 300, 30)
+	i := fltk.NewInput(l.X, l.Y, l.W, 30)
+	l.Add(i)
 	i.StealEvents(fltk.PUSH_MASK | fltk.DRAG_MASK)
 	i.SetEventHandler(func(e *fltk.Event) {
 		if (e.Stolen) {
-			println("CONTINUING EVENT: " + strconv.Itoa(e.Event))
+			fmt.Println("CONTINUING EVENT:", strconv.Itoa(e.Event), "widget:", e.Widget)
 			i.ContinueEvent()
 		}
 	})
+	e := fltk.NewTextEditor(l.X, l.Y, l.W, l.H)
+	window.Resizable(e)
 	window.End()
 	window.Show([]string{})
+	/*
 	for !exit {
 		fltk.Wait()
 	}
+	 */
+	println("RUN")
+	fltk.Run()
 }
