@@ -28,6 +28,7 @@ extern int go_fltk_event_y;
 extern int go_fltk_event_x_root;
 extern int go_fltk_event_y_root;
 extern int go_fltk_event_stolen;
+extern int go_fltk_event_return;
 
 extern void free(void *ptr);
 static inline void free_string(char* s) { free(s); }
@@ -60,7 +61,7 @@ extern int go_fltk_Widget_h(Widget *w);
 extern int go_fltk_wait_forever();
 extern int go_fltk_wait(double time);
 extern void go_fltk_get_event();
-extern void go_fltk_continue_event();
+extern void go_fltk_continue_event(int i);
 extern void go_fltk_init();
 
 #ifdef __cplusplus

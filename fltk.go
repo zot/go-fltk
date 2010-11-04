@@ -81,6 +81,7 @@ type Event struct {
 	XRoot int
 	YRoot int
 	Stolen bool
+	Return int
 //	TimeElapsed int
 }
 
@@ -90,6 +91,8 @@ type Widgety interface {
 	getWidget() *Widget
 	String() string
 }
+
+func debug(args... interface{}) {}//{fmt.Println(args...)}
 
 func cStringOpt(s []string) *C.char {
 	if len(s) == 0 {
@@ -144,10 +147,10 @@ func Wait(time... float64) *Event {
 			i,
 		}
 		if evt.Widget != nil {
-			println("widget: " + evt.Widget.String())
+			debug("widget: " + evt.Widget.String())
 			evt.Widget.getWidget().HandleEvent(evt)
 		} else {
-			println("no widget for event")
+			debug("no widget for event")
 		}
 		return evt
 	}
@@ -157,18 +160,18 @@ func Wait(time... float64) *Event {
 func Start() (chan Event, chan int) {
 	readEvent := make(chan Event)
 	continueEvent := make(chan int)
-//	println("starting")
+//	debug("starting")
 //	C.go_fltk_init()
-	println("started")
+	debug("started")
 	go func() {
 		C.go_fltk_run()
-		println("FLTK DONE")
+		debug("FLTK DONE")
 	}()
 	go func() {
 		for {
-			println("GO  WAITING FOR EVENT FROM FLTK")
+			debug("GO  WAITING FOR EVENT FROM FLTK")
 			C.go_fltk_get_event()
-			println("GO GOT EVENT FROM FLTK")
+			debug("GO GOT EVENT FROM FLTK")
 			readEvent <- Event{
 				widgets[C.go_fltk_callback_widget],
 				widgets[C.go_fltk_event_widget],
@@ -184,11 +187,12 @@ func Start() (chan Event, chan int) {
 				int(C.go_fltk_event_x_root),
 				int(C.go_fltk_event_y_root),
 				int(C.go_fltk_event_stolen) != 0,
+				int(C.go_fltk_event_return),
 			}
-			println("WAITING FOR CONTINUE FROM CHANNEL")
-			<- continueEvent
-			println("GO CONTINUING FLTK")
-			C.go_fltk_continue_event()
+			debug("WAITING FOR CONTINUE FROM CHANNEL")
+			i := <- continueEvent
+			debug("GO CONTINUING FLTK")
+			C.go_fltk_continue_event(C.int(i))
 		}
 	}()
 	return readEvent, continueEvent
@@ -196,16 +200,18 @@ func Start() (chan Event, chan int) {
 func Run() {
 	r, c := Start()
 	for {
-		println("WAITING FOR EVENT FROM CHANNEL")
+		debug("WAITING FOR EVENT FROM CHANNEL")
 		event := <- r
+		i := 0
 		if event.Callback != nil {
-			println("CALLBACK")
+			debug("CALLBACK")
 			event.Callback.getWidget().HandleCallback()
 		} else if event.Widget != nil {
-			println("EVENT")
 			event.Widget.getWidget().HandleEvent(&event)
+			i = event.Return
+			fmt.Println("Widget: ", event.Widget, ", returned: ", i)
 		}
-		fmt.Println(event)
-		c <- 0
+		debug(event)
+		c <- i
 	}
 }

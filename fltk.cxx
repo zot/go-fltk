@@ -24,6 +24,7 @@ int go_fltk_event_y;
 int go_fltk_event_x_root;
 int go_fltk_event_y_root;
 int go_fltk_event_stolen;
+int go_fltk_event_return;
 
 void set_event_fields() {
   go_fltk_event_widget = fltk::belowmouse();
@@ -62,14 +63,11 @@ public:
       go_fltk_event_stolen = 1;
       go_fltk_event_widget = dynamic_cast<Widget *>(this);
       respond();
-      if (go_fltk_event_stolen == 0) {
-	int i = continue_event();
-      }
-      return 1;
+      return (go_fltk_event_stolen == 0 ? continue_event() : go_fltk_event_return);
     }
-    int i = continue_event();
+    go_fltk_event_return = continue_event();
     respond();
-    return i;
+    return go_fltk_event_return;
   }
 };
 
@@ -98,8 +96,8 @@ static void notify_callback(Widget *w, void *data) {
   go_fltk_callback_widget = w;
   respond();
 }
-
-#define LOCK(code) fltk::lock(); printf("API LOCKED\n"); code; fltk::awake(); fltk::unlock(); printf("API UNLOCKED\n");
+#define debugf(...)
+#define LOCK(code) fltk::lock(); debugf("API LOCKED\n"); code; fltk::awake(); fltk::unlock(); debugf("API UNLOCKED\n");
 
 Box *go_fltk_get_UP_BOX() {LOCK(Box *b = fltk::UP_BOX;) return b;}
 Font *go_fltk_get_HELVETICA_BOLD_ITALIC() {LOCK(Font *f = fltk::HELVETICA_BOLD_ITALIC;) return f;}
@@ -127,7 +125,7 @@ int go_fltk_Widget_w(Widget *w) {LOCK(int i = w->w();) return i;}
 int go_fltk_Widget_h(Widget *w) {LOCK(int i = w->h();) return i;}
 //*
 int go_fltk_wait_forever() {
-  printf("TICK\n");
+  debugf("TICK\n");
   go_fltk_callback_widget = 0;
   go_fltk_event_stolen = 0;
   int i = fltk::wait();
@@ -136,7 +134,7 @@ int go_fltk_wait_forever() {
   return i;
 }
 int go_fltk_wait(double time) {
-  printf("TICK\n");
+  debugf("TICK\n");
   go_fltk_callback_widget = 0;
   go_fltk_event_stolen = 0;
   int i = fltk::wait(time);
@@ -157,16 +155,16 @@ static bool running = false;
 static void respond() {
   if (running) {
     set_event_fields();
-    printf("FLTK SENDING EVENT TO GO, UNLOCKING\n");
+    debugf("FLTK SENDING EVENT TO GO, UNLOCKING\n");
     unlock();
     eventFlag = true;
     eventMutex.signal();
-    printf("FLTK WAITING FOR CONTINUE FROM GO\n");
+    debugf("FLTK WAITING FOR CONTINUE FROM GO\n");
     while (!continueFlag) {continueMutex.wait();}
     continueFlag = false;
-    printf("FLTK GOT EVENT FROM GO, LOCKING\n");
+    debugf("FLTK GOT EVENT FROM GO, LOCKING\n");
     lock();
-    printf("FLTK LOCKED\n");
+    debugf("FLTK LOCKED\n");
   }
 }
 
@@ -175,7 +173,7 @@ void go_fltk_run() {
   lock();
   running = true;
   for (;;) {
-    printf("FLTK WAITING FOR EVENT\n");
+    debugf("FLTK WAITING FOR EVENT\n");
     fltk::wait();
   }
 }
@@ -184,11 +182,12 @@ void go_fltk_get_event() {
   while (!eventFlag) {eventMutex.wait();}
   eventFlag = false;
 }
-void go_fltk_continue_event() {
+void go_fltk_continue_event(int i) {
   continueFlag = true;
   lock();
   go_fltk_event_widget = 0;
   go_fltk_callback_widget = 0;
+  go_fltk_event_return = i;
   unlock();
   continueMutex.signal();
 }

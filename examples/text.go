@@ -20,6 +20,7 @@ func main() {
 			i.ContinueEvent()
 		}
 	})
+	fmt.Println("Editor at y: ", l.Y)
 	e := fltk.NewTextEditor(l.X, l.Y, l.W, l.H)
 	window.Resizable(e)
 	window.End()
