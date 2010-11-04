@@ -33,8 +33,6 @@ extern int go_fltk_event_return;
 extern void free(void *ptr);
 static inline void free_string(char* s) { free(s); }
 
-extern void go_fltk_init();
-extern void go_fltk_run();
 extern Box *go_fltk_get_UP_BOX();
 extern Font *go_fltk_get_HELVETICA_BOLD_ITALIC();
 extern LabelType *go_fltk_get_SHADOW_LABEL();
@@ -58,11 +56,9 @@ extern int go_fltk_Widget_x(Widget *w);
 extern int go_fltk_Widget_y(Widget *w);
 extern int go_fltk_Widget_w(Widget *w);
 extern int go_fltk_Widget_h(Widget *w);
-extern int go_fltk_wait_forever();
-extern int go_fltk_wait(double time);
+extern void go_fltk_run();
 extern void go_fltk_get_event();
 extern void go_fltk_continue_event(int i);
-extern void go_fltk_init();
 
 #ifdef __cplusplus
 }

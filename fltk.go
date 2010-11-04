@@ -5,7 +5,7 @@ package fltk
 */
 import "C"
 import "unsafe"
-import "fmt"
+//import "fmt"
 
 var UP_BOX *C.Box
 var HELVETICA_BOLD_ITALIC *C.Font
@@ -106,6 +106,7 @@ func init() {
 	HELVETICA_BOLD_ITALIC = C.go_fltk_get_HELVETICA_BOLD_ITALIC()
 	SHADOW_LABEL = C.go_fltk_get_SHADOW_LABEL()
 	widgets = map[*C.Widget]Widgety{}
+	Start()
 }
 func initWidget(w Widgety, p unsafe.Pointer) *Widget {
 	w.getWidget().ptr = (*C.Widget)(p)
@@ -114,49 +115,6 @@ func initWidget(w Widgety, p unsafe.Pointer) *Widget {
 	widgets[w.getWidget().ptr] = w
 	return w.getWidget()
 }
-/*
-func Run() {
-	C.go_fltk_run()
-}
-func Wait(time... float64) *Event {
-	i := 0
-
-	if len(time) == 0 {
-		i = int(C.go_fltk_wait_forever())
-	} else {
-		i = int(C.go_fltk_wait(C.double(time[0])))
-	}
-	if C.go_fltk_callback_widget != (*C.Widget)(unsafe.Pointer(uintptr(0))) {
-		widgets[C.go_fltk_callback_widget].getWidget().HandleCallback()
-	}
-	if C.go_fltk_event_widget != (*C.Widget)(unsafe.Pointer(uintptr(0))) {
-		evt := &Event{
-			widgets[C.go_fltk_event_widget],
-			int(C.go_fltk_event),
-			int(C.go_fltk_event_state),
-			int(C.go_fltk_event_button),
-			int(C.go_fltk_event_clicks),
-			int(C.go_fltk_event_dx),
-			int(C.go_fltk_event_dy),
-			int(C.go_fltk_event_key),
-			int(C.go_fltk_event_x),
-			int(C.go_fltk_event_y),
-			int(C.go_fltk_event_x_root),
-			int(C.go_fltk_event_y_root),
-			int(C.go_fltk_event_stolen) != 0,
-			i,
-		}
-		if evt.Widget != nil {
-			debug("widget: " + evt.Widget.String())
-			evt.Widget.getWidget().HandleEvent(evt)
-		} else {
-			debug("no widget for event")
-		}
-		return evt
-	}
-	return nil
-}
-*/
 func Start() {
 	debug("started")
 	go func() {
@@ -186,9 +144,9 @@ func ReadEvent() *Event {
 		int(C.go_fltk_event_return),
 	}
 }
-func ContinueEvent(i int) {
+func ContinueEvent(used int) {
 	debug("GO CONTINUING FLTK")
-	C.go_fltk_continue_event(C.int(i))
+	C.go_fltk_continue_event(C.int(used))
 }
 func Handle(event *Event) int {
 	if event.Callback != nil {
@@ -196,13 +154,10 @@ func Handle(event *Event) int {
 		event.Callback.getWidget().HandleCallback()
 	} else if event.Widget != nil {
 		event.Widget.getWidget().HandleEvent(event)
-		fmt.Println("-- widget:", event.Widget, "event:", event.Event, " returned: ", event.Return)
+		debug("-- widget:", event.Widget, "event:", event.Event, " returned: ", event.Return)
 	}
 	return event.Return
 }
-func Run() {
-	Start()
-	for {
-		ContinueEvent(Handle(ReadEvent()))
-	}
+func Run(while func() bool) {
+	for (while()) {ContinueEvent(Handle(ReadEvent()))}
 }

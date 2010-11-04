@@ -6,9 +6,9 @@ This is a simple go wrapper for [FLTK2](http://www.fltk.org/doc-2.0/html/index.h
 
 GOALS
 =====
-* Small and relatively stand-alone -- I wanted a toolkit that only depended on basic X functionality and was relatively small so I could statially link it into the Go package.  At this point, fltk.a is 121K and cgo_fltk.so is 312K.  Yes, I'm sitting here with a straight face and claiming that this is "small."  Widget kits are usually several megabytes, so this is small.  Maybe someday this will even be a service instead of a library.
-* Simplicity -- I'm trying to keep the code small, mostly in Go, generic (multipurpose, but not fat), easy to modify, and easy to extend
-* Good integration with Go -- the way FLTK processes events lends itself well to Go programs (I think).
+* *Good integration with Go* -- the way this binding processes events lends itself well to Go programs (I think).  since there is not call-in from C to Go, only call-out from Go to C, this runs FLTK in a separate thread in order to allow Go to intercept every event.  Go-FLTK operations are protected so that they are safe to use in goroutines.
+* *Simplicity* -- I'm trying to keep the code small, mostly in Go, generic (multipurpose, but not fat), easy to modify, and easy to extend
+* *Small and relatively stand-alone* -- I wanted a toolkit that only depended on basic X functionality and was relatively small so I could statially link it into the Go package.  At this point, fltk.a is 121K and cgo_fltk.so is 312K.  Yes, I'm sitting here with a straight face and claiming that this is "small."  Widget kits are usually several megabytes, so this is small.  Maybe someday this will even be a service instead of a library.
 
 
 LIMITED FUNCTIONALITY
@@ -16,9 +16,15 @@ LIMITED FUNCTIONALITY
 This wrapper is far from complete, and I'm only planning on supporting what I need to do Gober, but I welcome additions to it.  In fact, at this point it hardly does anything.  I'll flesh things out as I need them for Gober.
 
 
-EVENTS
-======
-When you call fltk.Wait() or fltk.Wait(), the toolkit will process at most one event, call the event handler on the widget that received the event, passing in an Event structure, and then return the event.  By default, widgets have empty handlers, so you can treat fltk as an event stream if you like, instead of using event handlers (wait for an event, process the event yourself), which may lend itself well to using Go channels.  That boils down to four ways you can deal with events:
+USING Go-FLTK
+=============
+* fltk.Run(while func() bool) runs FLTK until while() returns false.  Run() is defined like this:
+	for (while()) {ContinueEvent(Handle(ReadEvent()))}
+* fltk.ReadEvent() returns the next *Event structure read
+* fltk.Handle(event *Event) runs the widget's event handler (if there is one) and returns what the handler returned (1 means the widget used the event, 0 means it did not)
+* fltk.ContinueEvent(status int) allows FLTK to continue processing.  If you do not call this, the GUI will hang.
+
+By default, widgets have empty handlers, so you can treat fltk as an event stream if you like, instead of using event handlers (wait for an event, process the event yourself), which may lend itself well to using Go channels, since Go-FLTK operations are safe to use in goroutines.  That boils down to four ways you can deal with events:
 
 	case 1, process an event after the widget handles it:
 
