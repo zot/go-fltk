@@ -13,6 +13,7 @@ func main() {
 	window.Begin()
 	i := fltk.NewInput(l.X, l.Y, l.W, 30)
 	l.Add(i)
+//*
 	i.StealEvents(fltk.PUSH_MASK | fltk.DRAG_MASK)
 	i.SetEventHandler(func(e *fltk.Event) {
 		if (e.Stolen) {
@@ -20,6 +21,7 @@ func main() {
 			i.ContinueEvent()
 		}
 	})
+//*/
 	fmt.Println("Editor at y: ", l.Y)
 	e := fltk.NewTextEditor(l.X, l.Y, l.W, l.H)
 	window.Resizable(e)

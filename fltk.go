@@ -157,61 +157,52 @@ func Wait(time... float64) *Event {
 	return nil
 }
 */
-func Start() (chan Event, chan int) {
-	readEvent := make(chan Event)
-	continueEvent := make(chan int)
-//	debug("starting")
-//	C.go_fltk_init()
+func Start() {
 	debug("started")
 	go func() {
 		C.go_fltk_run()
 		debug("FLTK DONE")
 	}()
-	go func() {
-		for {
-			debug("GO  WAITING FOR EVENT FROM FLTK")
-			C.go_fltk_get_event()
-			debug("GO GOT EVENT FROM FLTK")
-			readEvent <- Event{
-				widgets[C.go_fltk_callback_widget],
-				widgets[C.go_fltk_event_widget],
-				int(C.go_fltk_event),
-				int(C.go_fltk_event_state),
-				int(C.go_fltk_event_button),
-				int(C.go_fltk_event_clicks),
-				int(C.go_fltk_event_dx),
-				int(C.go_fltk_event_dy),
-				int(C.go_fltk_event_key),
-				int(C.go_fltk_event_x),
-				int(C.go_fltk_event_y),
-				int(C.go_fltk_event_x_root),
-				int(C.go_fltk_event_y_root),
-				int(C.go_fltk_event_stolen) != 0,
-				int(C.go_fltk_event_return),
-			}
-			debug("WAITING FOR CONTINUE FROM CHANNEL")
-			i := <- continueEvent
-			debug("GO CONTINUING FLTK")
-			C.go_fltk_continue_event(C.int(i))
-		}
-	}()
-	return readEvent, continueEvent
+}
+func ReadEvent() *Event {
+	debug("GO  WAITING FOR EVENT FROM FLTK")
+	C.go_fltk_get_event()
+	debug("GO GOT EVENT FROM FLTK")
+	return &Event{
+		widgets[C.go_fltk_callback_widget],
+		widgets[C.go_fltk_event_widget],
+		int(C.go_fltk_event),
+		int(C.go_fltk_event_state),
+		int(C.go_fltk_event_button),
+		int(C.go_fltk_event_clicks),
+		int(C.go_fltk_event_dx),
+		int(C.go_fltk_event_dy),
+		int(C.go_fltk_event_key),
+		int(C.go_fltk_event_x),
+		int(C.go_fltk_event_y),
+		int(C.go_fltk_event_x_root),
+		int(C.go_fltk_event_y_root),
+		int(C.go_fltk_event_stolen) != 0,
+		int(C.go_fltk_event_return),
+	}
+}
+func ContinueEvent(i int) {
+	debug("GO CONTINUING FLTK")
+	C.go_fltk_continue_event(C.int(i))
+}
+func Handle(event *Event) int {
+	if event.Callback != nil {
+		debug("CALLBACK")
+		event.Callback.getWidget().HandleCallback()
+	} else if event.Widget != nil {
+		event.Widget.getWidget().HandleEvent(event)
+		fmt.Println("Widget: ", event.Widget, ", returned: ", event.Return)
+	}
+	return event.Return
 }
 func Run() {
-	r, c := Start()
+	Start()
 	for {
-		debug("WAITING FOR EVENT FROM CHANNEL")
-		event := <- r
-		i := 0
-		if event.Callback != nil {
-			debug("CALLBACK")
-			event.Callback.getWidget().HandleCallback()
-		} else if event.Widget != nil {
-			event.Widget.getWidget().HandleEvent(&event)
-			i = event.Return
-			fmt.Println("Widget: ", event.Widget, ", returned: ", i)
-		}
-		debug(event)
-		c <- i
+		ContinueEvent(Handle(ReadEvent()))
 	}
 }
