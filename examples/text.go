@@ -15,8 +15,10 @@ func main() {
 	i.StealEvents(fltk.PUSH_MASK | fltk.DRAG_MASK)
 	i.SetEventHandler(func(e *fltk.Event) {
 		if (e.Stolen) {
-			fmt.Println("CONTINUING EVENT:", strconv.Itoa(e.Event), "widget:", e.Widget)
-			i.ContinueEvent()
+			fmt.Println("CONTINUING EVENT:", strconv.Itoa(e.Event), "widget:", e.Widget, "push: ", fltk.PUSH)
+			if e.Event != fltk.PUSH || e.Button == 1 {
+				i.ContinueEvent()
+			}
 		}
 	})
 	fmt.Println("Editor at y: ", l.Y)

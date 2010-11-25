@@ -172,8 +172,8 @@ void go_fltk_get_event() {
   eventFlag = false;
 }
 void go_fltk_continue_event(int i) {
-  continueFlag = true;
   lock();
+  continueFlag = true;
   go_fltk_event_widget = 0;
   go_fltk_callback_widget = 0;
   go_fltk_event_return = i;

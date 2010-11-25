@@ -27,10 +27,10 @@ CGO_LDFLAGS=fltk.o $(FLTK_LIB) -lXext -lXinerama -lXft -lX11 -lXi -lm
 
 include $(GOROOT)/src/Make.pkg
 
-fltk.o: fltk.h fltk.cxx $(FLTK_LIB)
+fltk.o: fltk.h fltk.cxx
 	g++ -I$(FLTK) -c fltk.cxx
 
-$(CGOTARG).so: $(GCC_OFILES) $(CGO_DEPS)
+$(CGOTARG).so: $(GCC_OFILES) $(CGO_DEPS) $(FLTK_LIB)
 	g++ $(_CGO_CFLAGS_$(GOARCH)) -o $@ $(GCC_OFILES) $(CGO_LDFLAGS)  $(_CGO_LDFLAGS_$(GOOS))
 
 $(FLTK_LIB): $(FLTK)/config.status
@@ -39,11 +39,11 @@ $(FLTK_LIB): $(FLTK)/config.status
 $(FLTK)/config.status: $(FLTK)/stamp
 	(cd $(FLTK); ./configure --disable-gl --disable-shared)
 
-$(FLTK)/stamp: $(FLTK_DIST)
+$(FLTK)/stamp: $(FLTK_DIST)/Makefile
 	tar xjf $(FLTK_DIST)
 	touch $(FLTK)/stamp
 
-$(FLTK_DIST):
+$(FLTK_DIST)/Makefile:
 	(cd /tmp; wget $(FLTK_URL))
 
 clean-fltk:
