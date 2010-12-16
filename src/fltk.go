@@ -5,7 +5,7 @@ package fltk
 */
 import "C"
 import "unsafe"
-import "fmt"
+//import "fmt"
 
 var UP_BOX *C.Box
 var HELVETICA_BOLD_ITALIC *C.Font
@@ -125,8 +125,8 @@ type Widgety interface {
 	String() string
 }
 
-//func debug(args... interface{}) {}
-func debug(args... interface{}) {fmt.Println(args...)}
+func debug(args... interface{}) {}
+//func debug(args... interface{}) {fmt.Println(args...)}
 
 func cStringOpt(s []string) *C.char {
 	if len(s) == 0 {
