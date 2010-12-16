@@ -18,5 +18,5 @@ func NewPackedGroup(x, y, w, h int) *Group {
 
 func (g *Group) Begin() {C.go_fltk_Group_begin(g.ptr)}
 func (g *Group) End() {C.go_fltk_Group_end(g.ptr)}
-func (g *Group) Add(w Widgety) {C.go_fltk_Group_add(g.ptr, w.getWidget().ptr)}
-func (g *Group) Resizable(w Widgety) {C.go_fltk_Group_resizable(g.ptr, w.getWidget().ptr)}
+func (g *Group) Add(w Widgety) {C.go_fltk_Group_add(g.ptr, w.GetWidget().ptr)}
+func (g *Group) Resizable(w Widgety) {C.go_fltk_Group_resizable(g.ptr, w.GetWidget().ptr)}

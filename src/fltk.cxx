@@ -7,7 +7,7 @@
 #include <fltk/events.h>
 #include <fltk/Threads.h>
 #include "fltk.h"
-#include <stdio.h>
+//#include <stdio.h>
 
 //#define debugf printf
 #define debugf(...)
@@ -76,7 +76,7 @@ public:
       respond(evt);
       return go_fltk_event_return;
     }
-    return 1;
+    return continue_event(evt);
   }
 };
 
@@ -143,12 +143,13 @@ int go_fltk_Widget_x(Widget *w) {LOCK(int i = w->x();) return i;}
 int go_fltk_Widget_y(Widget *w) {LOCK(int i = w->y();) return i;}
 int go_fltk_Widget_w(Widget *w) {LOCK(int i = w->w();) return i;}
 int go_fltk_Widget_h(Widget *w) {LOCK(int i = w->h();) return i;}
+void go_fltk_Widget_throw_focus(Widget *w) {LOCK(w->throw_focus());}
 const char *go_fltk_Input_get_text(Input *in) {LOCK(const char *t = in->text();); return t;}
 int go_fltk_Input_set_text(Input *in, const char *t) {LOCK(int b = in->text(t);); return b;}
-int go_fltk_Input_mouse_position(Input *in) {int pos; LOCK(pos = dynamic_cast<GInput *>(in)->mouse_pos); return pos;}
+int go_fltk_Input_mouse_position(Input *in) {LOCK(int pos = dynamic_cast<GInput *>(in)->mouse_pos); return pos;}
 int go_fltk_Input_get_position(Input *in) {LOCK(int pos = in->position();); return pos;}
 int go_fltk_Input_get_mark(Input *in) {LOCK(int pos = in->mark();); return pos;}
-
+void go_fltk_Input_set_position(Input *in, int p, int m) {LOCK(in->position(p, m));}
 ////////////////
 /// CHANNELS ///
 ////////////////

@@ -16,8 +16,10 @@ func NewInput(x, y, w, h int, text... string) *Input {
 	return i
 }
 
-func (i *Input) GetText() string {return string(uintptr(unsafe.Pointer(C.go_fltk_Input_get_text(i.ptr))))}
+//func (i *Input) GetText() string {return string(uintptr(unsafe.Pointer(C.go_fltk_Input_get_text(i.ptr))))}
+func (i *Input) GetText() string {return C.GoString(C.go_fltk_Input_get_text(i.ptr))}
 func (i *Input) SetText(text string) bool {return C.go_fltk_Input_set_text(i.ptr, C.CString(text)) != C.int(0)}
 func (i *Input) MousePosition() int {return int(C.go_fltk_Input_mouse_position(i.ptr))}
 func (i *Input) GetPosition() int {return int(C.go_fltk_Input_get_position(i.ptr))}
 func (i *Input) GetMark() int {return int(C.go_fltk_Input_get_mark(i.ptr))}
+func (i *Input) SetPosition(p int, m int) {C.go_fltk_Input_set_position(i.ptr, C.int(p), C.int(m))}

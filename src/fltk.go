@@ -121,7 +121,7 @@ func (*Event) Continue() bool{
 var widgets map[*C.Widget]Widgety
 
 type Widgety interface {
-	getWidget() *Widget
+	GetWidget() *Widget
 	String() string
 }
 
@@ -143,11 +143,11 @@ func init() {
 	Start()
 }
 func initWidget(w Widgety, p unsafe.Pointer) *Widget {
-	w.getWidget().ptr = (*C.Widget)(p)
-	w.getWidget().callback = emptyCallback
-	w.getWidget().eventHandler = emptyHandler
-	widgets[w.getWidget().ptr] = w
-	return w.getWidget()
+	w.GetWidget().ptr = (*C.Widget)(p)
+	w.GetWidget().callback = emptyCallback
+	w.GetWidget().eventHandler = emptyHandler
+	widgets[w.GetWidget().ptr] = w
+	return w.GetWidget()
 }
 func Start() {
 	debug("started")
@@ -185,10 +185,10 @@ func ContinueEvent(used int) {
 func Handle(event *Event) int {
 	if event.Callback != nil {
 		debug("CALLBACK")
-		event.Callback.getWidget().HandleCallback()
+		event.Callback.GetWidget().HandleCallback()
 	} else if event.Widget != nil {
 		debug("-- widget:", event.Widget, "event:", event.Event)
-		event.Widget.getWidget().HandleEvent(event)
+		event.Widget.GetWidget().HandleEvent(event)
 		debug("-- event returned: ", event.Return)
 	}
 	return event.Return

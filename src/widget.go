@@ -24,7 +24,7 @@ func (w *Widget) SetCallback(f func()) {
 	w.callback = f
 	C.go_fltk_Widget_callback(w.ptr)
 }
-func (w *Widget) getWidget() *Widget {return w}
+func (w *Widget) GetWidget() *Widget {return w}
 func (w *Widget) StealEvents(etypes int) {C.go_fltk_Widget_steal_events(w.ptr, C.int(etypes))}
 func (w *Widget) Box(box *C.Box) {C.go_fltk_Widget_box(w.ptr, box)}
 func (w *Widget) LabelFont(font *C.Font) {C.go_fltk_Widget_labelfont(w.ptr, font)}
@@ -37,3 +37,4 @@ func (w *Widget) X() int {return int(C.go_fltk_Widget_x(w.ptr))}
 func (w *Widget) Y() int {return int(C.go_fltk_Widget_y(w.ptr))}
 func (w *Widget) W() int {return int(C.go_fltk_Widget_w(w.ptr))}
 func (w *Widget) H() int {return int(C.go_fltk_Widget_h(w.ptr))}
+func (w *Widget) ThrowFocus() {C.go_fltk_Widget_throw_focus(w.ptr)}

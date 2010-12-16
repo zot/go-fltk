@@ -47,6 +47,7 @@ extern int go_fltk_event_return;
 
 extern void free(void *ptr);
 static inline void free_string(char* s) { free(s); }
+static inline char* to_char_ptr(void *ptr) {return (char *)ptr;}
 
 extern Box *go_fltk_get_UP_BOX();
 extern Font *go_fltk_get_HELVETICA_BOLD_ITALIC();
@@ -74,11 +75,13 @@ extern int go_fltk_Widget_x(Widget *w);
 extern int go_fltk_Widget_y(Widget *w);
 extern int go_fltk_Widget_w(Widget *w);
 extern int go_fltk_Widget_h(Widget *w);
+extern void go_fltk_Widget_throw_focus(Widget *w);
 extern const char *go_fltk_Input_get_text(Input *in);
 extern int go_fltk_Input_set_text(Input *in, const char *text);
 extern int go_fltk_Input_mouse_position(Input *in);
 extern int go_fltk_Input_get_position(Input *in);
 extern int go_fltk_Input_get_mark(Input *in);
+extern void go_fltk_Input_set_position(Input *in, int p, int m);
 extern void go_fltk_run();
 extern void go_fltk_get_event();
 extern void go_fltk_continue_event(int i);
