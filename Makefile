@@ -6,3 +6,6 @@ install:
 
 examples:
 	cd src && $(MAKE) $(MFLAGS) examples
+
+clean:
+	cd src && $(MAKE) $(MFLAGS) clean

@@ -24,13 +24,6 @@ func (w *Widget) SetCallback(f func()) {
 	w.callback = f
 	C.go_fltk_Widget_callback(w.ptr)
 }
-func (w *Widget) ContinueEvent() bool {
-	if C.go_fltk_event_stolen != 0 {
-		C.go_fltk_Widget_continue_event(w.ptr)
-		return true
-	}
-	return false
-}
 func (w *Widget) getWidget() *Widget {return w}
 func (w *Widget) StealEvents(etypes int) {C.go_fltk_Widget_steal_events(w.ptr, C.int(etypes))}
 func (w *Widget) Box(box *C.Box) {C.go_fltk_Widget_box(w.ptr, box)}

@@ -12,12 +12,16 @@ func main() {
 	window.Begin()
 	i := fltk.NewInput(l.X, l.Y, l.W, 30)
 	l.Add(i)
-	i.StealEvents(fltk.PUSH_MASK | fltk.DRAG_MASK)
+	i.StealEvents(fltk.PUSH_MASK | fltk.DRAG_MASK | fltk.PASTE_MASK)
 	i.SetEventHandler(func(e *fltk.Event) {
 		if (e.Stolen) {
-			fmt.Println("CONTINUING EVENT:", strconv.Itoa(e.Event), "widget:", e.Widget, "push: ", fltk.PUSH)
-			if e.Event != fltk.PUSH || e.Button == 1 {
-				i.ContinueEvent()
+			fmt.Println("STOLE EVENT:", strconv.Itoa(e.Event), "widget:", e.Widget, "push: ", fltk.PUSH)
+			if (e.Event == fltk.PUSH) {
+				fmt.Println("\nMouse Position:", i.MousePosition(), "\n")
+			}
+			if (e.Event != fltk.PUSH && e.Event != fltk.RELEASE && e.Event != fltk.PASTE) || e.Button == 1 {
+				fmt.Println("CONTINUING EVENT:", strconv.Itoa(e.Event), "widget:", e.Widget, "push: ", fltk.PUSH)
+				e.Continue()
 			}
 		}
 	})

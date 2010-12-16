@@ -1,4 +1,5 @@
 #include <fltk/Window.h>
+#include <fltk/PackedGroup.h>
 #include <fltk/Widget.h>
 #include <fltk/Input.h>
 #include <fltk/TextEditor.h>
@@ -54,7 +55,7 @@ static void unlock() {
   fltk::unlock();
 }
 
-class EventStealer {
+class EventThief {
 public:
   int stealEvents;
   int event;
@@ -67,9 +68,9 @@ public:
 
       debugf("widget: %x belowmouse: %x, event:%d\n", (unsigned int)dynamic_cast<Widget *>(this), (unsigned int)fltk::belowmouse(), evt);
       if (stolen) {
-	go_fltk_event_stolen = 1;
-	respond(evt);
-	return (go_fltk_event_stolen == 0 ? continue_event(evt) : go_fltk_event_return);
+    	  go_fltk_event_stolen = 1;
+    	  respond(evt);
+    	  return (go_fltk_event_stolen == 0 ? continue_event(evt) : go_fltk_event_return);
       }
       go_fltk_event_return = continue_event(evt);
       respond(evt);
@@ -79,25 +80,32 @@ public:
   }
 };
 
-class GWidget : public EventStealer, public fltk::Widget {
+class GWidget : public EventThief, public fltk::Widget {
 public:
   GWidget(int x, int y, int w, int h, const char *label) : fltk::Widget(x, y, w, h, label) {}
-  int handle(int event) {return EventStealer::handle(event);}
+  int handle(int event) {return EventThief::handle(event);}
   int continue_event(int event) {return fltk::Widget::handle(event);}
 };
 
-class GInput : public EventStealer, public fltk::Input {
+class GInput : public EventThief, public fltk::Input {
 public:
+  int mouse_pos;
+
   GInput(int x, int y, int w, int h, const char *label) : fltk::Input(x, y, w, h, label) {}
-  int handle(int event) {return EventStealer::handle(event);}
+  int handle(int event) {
+	  if (event == fltk::PUSH) {
+		  mouse_pos = mouse_position(*this);
+	  }
+	  return EventThief::handle(event);
+  }
   int continue_event(int event) {return fltk::Input::handle(event);}
 };
 
-class GTextEditor : public EventStealer, public fltk::TextEditor {
+class GTextEditor : public EventThief, public fltk::TextEditor {
 public:
   int evt;
   GTextEditor(int x, int y, int w, int h, const char *label) : fltk::TextEditor(x, y, w, h, label) {}
-  int handle(int event) {return EventStealer::handle(event);}
+  int handle(int event) {return EventThief::handle(event);}
   int continue_event(int event) {return fltk::TextEditor::handle(event);}
 };
 
@@ -112,17 +120,20 @@ Font *go_fltk_get_HELVETICA_BOLD_ITALIC() {LOCK(Font *f = fltk::HELVETICA_BOLD_I
 LabelType *go_fltk_get_SHADOW_LABEL() {LOCK(LabelType *t = fltk::SHADOW_LABEL;) return t;}
 //void go_fltk_run() {LOCK(fltk::run();)}
 Window *go_fltk_new_Window(int w, int h) {LOCK(Window *win = new Window(w, h);) return win;}
+PackedGroup *go_fltk_new_PackedGroup(int x, int y, int w, int h) {LOCK(PackedGroup *g = new PackedGroup(x, y, w, h);) return g;}
 Widget *go_fltk_new_Widget(int x, int y, int w, int h, const char *text) {LOCK(Widget *wid = new GWidget(x, y, w, h, text);) return wid;}
 Input *go_fltk_new_Input(int x, int y, int w, int h, const char *text) {LOCK(Input *i = new GInput(x, y, w, h, text);) return i;}
 TextEditor *go_fltk_new_TextEditor(int x, int y, int w, int h, const char *text) {LOCK(TextEditor *te = new GTextEditor(x, y, w, h, text);) return te;}
 //TextEditor *go_fltk_new_TextEditor(int x, int y, int w, int h, const char *text) {LOCK(TextEditor *te = new TextEditor(x, y, w, h, text);) return te;}
-void go_fltk_Widget_steal_events(Widget *w, int events) {LOCK(dynamic_cast<EventStealer*>(w)->stealEvents = events;)}
-void go_fltk_Widget_continue_event(Widget *w) {LOCK(go_fltk_event_stolen = 0;)}
+void go_fltk_Widget_steal_events(Widget *w, int events) {LOCK(dynamic_cast<EventThief*>(w)->stealEvents = events;)}
+void go_fltk_Event_continue() {LOCK(go_fltk_event_stolen = 0;)}
 void go_fltk_Group_begin(Group *g) {LOCK(g->begin();)}
 void go_fltk_Group_end(Group *g) {LOCK(g->end();)}
+void go_fltk_Group_add(Group *g, Widget *w) {LOCK(g->add(w);)}
 void go_fltk_Group_resizable(Group *g, Widget *w) {LOCK(g->resizable(w);)}
 void go_fltk_Window_destroy(Window *w) {LOCK(w->destroy();)}
 void go_fltk_Window_show(Window *w, int argc, void *argv) {LOCK(w->show(argc, (char **)argv);)}
+void go_fltk_Window_set_label(Window *w, const char *label) {LOCK(w->label(label);)}
 void go_fltk_Widget_box(Widget *w, Box *box) {LOCK(w->box(box);)}
 void go_fltk_Widget_callback(Widget *w) {LOCK(w->callback(notify_callback);)}
 void go_fltk_Widget_labelfont(Widget *w, Font *font) {LOCK(w->labelfont(font);)}
@@ -132,6 +143,11 @@ int go_fltk_Widget_x(Widget *w) {LOCK(int i = w->x();) return i;}
 int go_fltk_Widget_y(Widget *w) {LOCK(int i = w->y();) return i;}
 int go_fltk_Widget_w(Widget *w) {LOCK(int i = w->w();) return i;}
 int go_fltk_Widget_h(Widget *w) {LOCK(int i = w->h();) return i;}
+const char *go_fltk_Input_get_text(Input *in) {LOCK(const char *t = in->text();); return t;}
+int go_fltk_Input_set_text(Input *in, const char *t) {LOCK(int b = in->text(t);); return b;}
+int go_fltk_Input_mouse_position(Input *in) {int pos; LOCK(pos = dynamic_cast<GInput *>(in)->mouse_pos); return pos;}
+int go_fltk_Input_get_position(Input *in) {LOCK(int pos = in->position();); return pos;}
+int go_fltk_Input_get_mark(Input *in) {LOCK(int pos = in->mark();); return pos;}
 
 ////////////////
 /// CHANNELS ///

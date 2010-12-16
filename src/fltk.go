@@ -5,7 +5,7 @@ package fltk
 */
 import "C"
 import "unsafe"
-//import "fmt"
+import "fmt"
 
 var UP_BOX *C.Box
 var HELVETICA_BOLD_ITALIC *C.Font
@@ -66,6 +66,31 @@ const (
 	TOOLTIP_MASK
 )
 
+/*! Flags returned by event_state(), and used as the high 16 bits
+  of Widget::add_shortcut() values (the low 16 bits are all zero, so these
+  may be or'd with key values).
+
+  The inline function BUTTON(n) will turn n (1-8) into the flag for a
+  mouse button.
+*/
+const (
+  SHIFT		= 1 << 16 * iota	// 0x00010000,	/*!< Either shift key held down */
+  CAPSLOCK						// 0x00020000,	/*!< Caps lock is toggled on */
+  CTRL							// 0x00040000,	/*!< Either ctrl key held down */
+  ALT							// 0x00080000,	/*!< Either alt key held down */
+  NUMLOCK						// 0x00100000,	/*!< Num Lock turned on */
+  _
+  META							// 0x00400000,	/*!< "Windows" or the "Apple" keys held down */
+  SCROLLLOCK					// 0x00800000,	/*!< Scroll Lock turned on */
+  BUTTON1						// 0x01000000,	/*!< Left mouse button held down */
+  BUTTON2						// 0x02000000,	/*!< Middle mouse button held down */
+  BUTTON3						// 0x04000000,	/*!< Right mouse button held down */
+  ANY_BUTTON = 0x7f000000		// 0x7f000000, /*!< Any mouse button (up to 8) */
+  ACCELERATOR = C.ACCELERATOR	//!< ALT on Windows/Linux, CTRL on OS/X, use for menu accelerators
+  OPTION = C.OPTION				//!< ALT|META on Windows/Linux, just ALT on OS/X, use as a drag modifier
+  COMMAND = C.COMMAND			//!< CTRL on Windows/Linux, META on OS/X, use for menu shortcuts
+)
+
 type Event struct {
 	Callback Widgety
 	Widget Widgety
@@ -85,6 +110,14 @@ type Event struct {
 //	TimeElapsed int
 }
 
+func (*Event) Continue() bool{
+	if C.go_fltk_event_stolen != 0 {
+		C.go_fltk_Event_continue()
+		return true
+	}
+	return false
+}
+
 var widgets map[*C.Widget]Widgety
 
 type Widgety interface {
@@ -92,7 +125,8 @@ type Widgety interface {
 	String() string
 }
 
-func debug(args... interface{}) {}//{fmt.Println(args...)}
+//func debug(args... interface{}) {}
+func debug(args... interface{}) {fmt.Println(args...)}
 
 func cStringOpt(s []string) *C.char {
 	if len(s) == 0 {
@@ -153,8 +187,9 @@ func Handle(event *Event) int {
 		debug("CALLBACK")
 		event.Callback.getWidget().HandleCallback()
 	} else if event.Widget != nil {
+		debug("-- widget:", event.Widget, "event:", event.Event)
 		event.Widget.getWidget().HandleEvent(event)
-		debug("-- widget:", event.Widget, "event:", event.Event, " returned: ", event.Return)
+		debug("-- event returned: ", event.Return)
 	}
 	return event.Return
 }
