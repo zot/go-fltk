@@ -1,5 +1,16 @@
 #ifdef __cplusplus
 #define TYPEDEF(type) typedef fltk::type type
+namespace fltk {
+class FL_API OberFrame : public Group {
+public:
+	bool horizontal;
+
+	OberFrame(int x, int y, int w, int h, const char *label, bool horiz) : horizontal(horiz), Group(x, y, w, h, label) {}
+	void draw();
+	void layout();
+	void resizeFrame(OberFrame *fr, int &end);
+};
+}
 extern "C" {
 #else
 #define TYPEDEF(type) typedef struct type type
@@ -19,6 +30,7 @@ enum {
 };
 #endif
 
+TYPEDEF(OberFrame);
 TYPEDEF(Box);
 TYPEDEF(Font);
 TYPEDEF(LabelType);

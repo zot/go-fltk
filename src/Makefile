@@ -21,14 +21,17 @@ CGOFILES=\
 	input.go \
 	texteditor.go \
 	window.go
-CGO_DEPS=fltk.o
+CGO_DEPS=fltk.o oberFrame.o
 
-CGO_LDFLAGS=fltk.o $(FLTK_LIB) -lXext -lXinerama -lXft -lX11 -lXi -lm
+CGO_LDFLAGS=oberFrame.o fltk.o $(FLTK_LIB) -lXext -lXinerama -lXft -lX11 -lXi -lm
 
 include $(GOROOT)/src/Make.pkg
 
-fltk.o: fltk.h fltk.cxx $(FLTK_LIB)
-	g++ -I$(FLTK) -c fltk.cxx
+fltk.o: fltk.h fltk.cxx oberFrame.cxx $(FLTK_LIB)
+	g++ -I$(FLTK) -c fltk.cxx oberFrame.cxx
+
+oberFrame.o: oberFrame.cxx $(FLTK_LIB)
+	g++ -I$(FLTK) -c oberFrame.cxx
 
 $(CGOTARG).so: $(GCC_OFILES) $(CGO_DEPS) $(FLTK_LIB)
 	g++ $(_CGO_CFLAGS_$(GOARCH)) -o $@ $(GCC_OFILES) $(CGO_LDFLAGS)  $(_CGO_LDFLAGS_$(GOOS))
