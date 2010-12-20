@@ -20,6 +20,7 @@ CGOFILES=\
 	group.go \
 	input.go \
 	texteditor.go \
+	oberFrame.go \
 	window.go
 CGO_DEPS=fltk.o oberFrame.o
 
@@ -28,13 +29,13 @@ CGO_LDFLAGS=oberFrame.o fltk.o $(FLTK_LIB) -lXext -lXinerama -lXft -lX11 -lXi -l
 include $(GOROOT)/src/Make.pkg
 
 fltk.o: fltk.h fltk.cxx oberFrame.cxx $(FLTK_LIB)
-	g++ -I$(FLTK) -c fltk.cxx oberFrame.cxx
+	g++ -I$(FLTK) -g -c fltk.cxx oberFrame.cxx
 
 oberFrame.o: oberFrame.cxx $(FLTK_LIB)
-	g++ -I$(FLTK) -c oberFrame.cxx
+	g++ -I$(FLTK) -g -c oberFrame.cxx
 
 $(CGOTARG).so: $(GCC_OFILES) $(CGO_DEPS) $(FLTK_LIB)
-	g++ $(_CGO_CFLAGS_$(GOARCH)) -o $@ $(GCC_OFILES) $(CGO_LDFLAGS)  $(_CGO_LDFLAGS_$(GOOS))
+	g++ -g $(_CGO_CFLAGS_$(GOARCH)) -o $@ $(GCC_OFILES) $(CGO_LDFLAGS)  $(_CGO_LDFLAGS_$(GOOS))
 
 $(FLTK_LIB): $(FLTK)/config.status
 	cd $(FLTK) && make DIRS="src $(LOCALIMAGES) images"

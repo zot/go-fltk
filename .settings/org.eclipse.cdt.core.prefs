@@ -1,0 +1,10 @@
+#Sun Dec 19 14:46:53 CST 2010
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.toolchain.gnu.base.1525114322/GOROOT/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.1525114322/GOROOT/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.base.1525114322/GOROOT/value=/mnt/aux/sandbox/go
+environment/project/cdt.managedbuild.toolchain.gnu.base.1525114322/PATH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.1525114322/PATH/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.base.1525114322/PATH/value=${PATH}\:/mnt/aux/sandbox/go/bin
+environment/project/cdt.managedbuild.toolchain.gnu.base.1525114322/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.1525114322/appendContributed=true

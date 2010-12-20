@@ -13,6 +13,8 @@
 #define debugf(...)
 #define MAX_EVENT_TYPES 25
 
+using namespace fltk;
+
 Widget *go_fltk_callback_widget = 0;
 Widget *go_fltk_event_widget;
 int go_fltk_event;
@@ -45,15 +47,6 @@ void set_event_fields(int evt) {
 }
 
 static void respond(int event);
-
-static void lock() {
-  fltk::lock();
-}
-
-static void unlock() {
-  fltk::awake();
-  fltk::unlock();
-}
 
 class EventThief {
 public:

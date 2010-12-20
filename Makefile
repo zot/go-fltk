@@ -1,5 +1,5 @@
 all:
-	cd src && $(MAKE) $(MFLAGS) all
+	cd src && $(MAKE) $(MFLAGS) all examples
 
 install:
 	cd src && $(MAKE) $(MFLAGS) install
